@@ -1,5 +1,6 @@
 from twistar.registry import Registry
 from twistar.dbconfig.base import InteractionBase
+from twistar.exceptions import ImaginaryTableError, CannotRefreshError
 
 class PyODBCDBConfig(InteractionBase):
 
@@ -99,7 +100,7 @@ class PyODBCDBConfig(InteractionBase):
         """
         if not Registry.SCHEMAS.has_key(tablename) and txn is not None:
             try:
-                self.executeTxn(txn, "SELECT * FROM %s OFFSET 0 ROWS FETCH NEXT %s ROWS ONLY 1" % tablename)
+                self.executeTxn(txn, "SELECT TOP 1 * FROM %s" % tablename)
             except Exception, e:
                 raise ImaginaryTableError, "Table %s does not exist." % tablename
             Registry.SCHEMAS[tablename] = [row[0] for row in txn.description]
