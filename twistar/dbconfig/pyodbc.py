@@ -75,8 +75,12 @@ class PyODBCDBConfig(InteractionBase):
 
         if not isinstance(limit, tuple) and limit is not None and int(limit) == 1:
             one = True
-
-        q = "SELECT %s FROM %s" % (select, tablename)
+    
+	if not isinstance(limit, tuple) and limit is not None:
+	   start = "SELECT TOP %s" % limit
+	else:
+	   start = "SELECT"
+        q = "%s %s FROM %s" % (start, select, tablename)
         args = []
         if where is not None:
             wherestr, args = self.whereToString(where)
@@ -88,8 +92,6 @@ class PyODBCDBConfig(InteractionBase):
 
         if isinstance(limit, tuple):
             q += " OFFSET %s ROWS FETCH NEXT %s ROWS ONLY" % (limit[0], limit[1])
-        elif limit is not None:
-            q += " OFFSET 0 ROWS FETCH NEXT %s ROWS ONLY" + str(limit)
 
         return self.runInteraction(self._doselect, q, args, tablename, one)
 
