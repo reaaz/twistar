@@ -6,7 +6,7 @@ except ImportError:
 
 setup(
     name="twistar",
-    version="3.0",
+    version="3.1",
     description="An implementation of the Active Record pattern for Twisted",
     author="Brian Muller",
     author_email="bamuller@gmail.com",
