@@ -92,7 +92,6 @@ class PyODBCDBConfig(InteractionBase):
 
         if isinstance(limit, tuple):
             q += " OFFSET %s ROWS FETCH NEXT %s ROWS ONLY" % (limit[0], limit[1])
-
         return self.runInteraction(self._doselect, q, args, tablename, one)
 
     def getSchema(self, tablename, txn=None):
@@ -107,3 +106,17 @@ class PyODBCDBConfig(InteractionBase):
                 raise ImaginaryTableError, "Table %s does not exist." % tablename
             Registry.SCHEMAS[tablename] = [row[0] for row in txn.description]
         return Registry.SCHEMAS.get(tablename, [])
+
+    def count(self, tablename, where=None):
+        """
+        Get the number of rows in the given table (optionally, that meet the given where criteria).
+
+        @param tablename: The tablename to count rows from.
+
+        @param where: Conditional of the same form as the C{where} parameter in L{DBObject.find}.
+
+        @return: A C{Deferred} that returns the number of rows.
+        """
+        d = self.select(tablename, where=where, select='count(*)')
+        d.addCallback(lambda res: res[0][''])
+        return d
