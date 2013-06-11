@@ -37,10 +37,10 @@ class PyODBCDBConfig(InteractionBase):
         @return: The integer id of the last inserted row.
         """
         q = "SELECT SCOPE_IDENTITY()"
-        self.executeTxn(txn, q)            
+        self.executeTxn(txn, q)
         result = txn.fetchall()
         return result[0][0]
-    
+
 
     def select(self, tablename, id=None, where=None, group=None, limit=None, orderby=None, select=None):
         """
@@ -75,12 +75,12 @@ class PyODBCDBConfig(InteractionBase):
 
         if not isinstance(limit, tuple) and limit is not None and int(limit) == 1:
             one = True
-    
+
 	if not isinstance(limit, tuple) and limit is not None:
 	   start = "SELECT TOP %s" % limit
 	else:
 	   start = "SELECT"
-        q = "%s %s FROM %s" % (start, select, tablename)
+        q = "%s %s WITH (NOLOCK) FROM %s" % (start, select, tablename)
         args = []
         if where is not None:
             wherestr, args = self.whereToString(where)
@@ -101,7 +101,7 @@ class PyODBCDBConfig(InteractionBase):
         """
         if not Registry.SCHEMAS.has_key(tablename) and txn is not None:
             try:
-                self.executeTxn(txn, "SELECT TOP 1 * FROM %s" % tablename)
+                self.executeTxn(txn, "SELECT TOP 1 * WITH (NOLOCK) FROM %s" % tablename)
             except Exception, e:
                 raise ImaginaryTableError, "Table %s does not exist." % tablename
             Registry.SCHEMAS[tablename] = [row[0] for row in txn.description]
