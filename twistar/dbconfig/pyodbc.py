@@ -80,7 +80,7 @@ class PyODBCDBConfig(InteractionBase):
 	   start = "SELECT TOP %s" % limit
 	else:
 	   start = "SELECT"
-        q = "%s %s WITH (NOLOCK) FROM %s" % (start, select, tablename)
+        q = "%s %s FROM %s WITH (NOLOCK)" % (start, select, tablename)
         args = []
         if where is not None:
             wherestr, args = self.whereToString(where)
@@ -101,7 +101,7 @@ class PyODBCDBConfig(InteractionBase):
         """
         if not Registry.SCHEMAS.has_key(tablename) and txn is not None:
             try:
-                self.executeTxn(txn, "SELECT TOP 1 * WITH (NOLOCK) FROM %s" % tablename)
+                self.executeTxn(txn, "SELECT TOP 1 * FROM %s WITH (NOLOCK)" % tablename)
             except Exception, e:
                 raise ImaginaryTableError, "Table %s does not exist." % tablename
             Registry.SCHEMAS[tablename] = [row[0] for row in txn.description]
